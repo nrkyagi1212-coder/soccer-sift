@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドッヂボール審判シフト</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;font-size:14px;background:#f4f5f7;color:#111}
+header{background:#1D9E75;color:#fff;padding:12px 16px;font-size:16px;font-weight:700;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;margin-right:4px}
+.sync-dot.ok{background:#4ade80}.sync-dot.wait{background:#facc15;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #1D9E75;overflow-x:auto;position:sticky;top:48px;z-index:99}
+.tab{flex:1;min-width:60px;padding:9px 3px;text-align:center;font-size:11px;font-weight:600;color:#888;border:none;background:none;cursor:pointer;white-space:nowrap}
+.tab.on{color:#1D9E75;border-bottom:2px solid #1D9E75;margin-bottom:-2px}
+.page{display:none;padding:12px}.page.on{display:block}
+.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#444;color:#fff;padding:6px 4px;text-align:center;font-size:11px}
+td{padding:6px 4px;border-bottom:1px solid #eee;text-align:center}
+td.tl{text-align:left}
+input[type=number]{width:44px;padding:4px 2px;text-align:center;border:2px solid #FFDD00;border-radius:6px;font-size:15px;font-weight:700;background:#FFFFF0}
+input[type=number]:focus{outline:none;border-color:#1D9E75}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.r1{background:#E6F1FB;color:#0C447C}.r2{background:#EAF3DE;color:#27500A}
+.r3{background:#FAEEDA;color:#633806}.r4{background:#FAECE7;color:#712B13}.r5{background:#F1EFE8;color:#444}
+.grp-a{background:#185FA5;color:#fff}.grp-b{background:#1D9E75;color:#fff}
+.grp-c{background:#993C1D;color:#fff}.grp-d{background:#534AB7;color:#fff}.grp-e{background:#444441;color:#fff}
+.blk-W{background:#E6F1FB;color:#0C447C}.blk-X{background:#E1F5EE;color:#085041}
+.blk-Y{background:#FAECE7;color:#712B13}.blk-Z{background:#EEEDFE;color:#3C3489}
+.shift-row{border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid #e8e8e8;background:#fff}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.role-box{border-radius:6px;padding:4px 7px;font-size:11px}
+.role-lbl{font-size:10px;opacity:.7;margin-bottom:1px}
+.role-name{font-weight:700;font-size:11px}
+.ref-box{background:#E6F1FB;color:#0C447C}
+.sub-box{background:#EAF3DE;color:#27500A}
+.hb-box{background:#FAEEDA;color:#633806}
+.yd-box{background:#EEEDFE;color:#3C3489}
+.ng-box{background:#FCEBEB;color:#A32D2D}
+.fixed-box{background:#FFF9E6;color:#92400E;border:1px solid #F59E0B}
+.info{background:#E1F5EE;color:#085041;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:8px;line-height:1.6}
+.winner-input{width:72px;padding:4px 6px;border:2px solid #FFDD00;border-radius:6px;font-size:13px;font-weight:700;text-align:center;background:#FFFFF0}
+.auto-tag{font-size:10px;color:#1D9E75;font-weight:600;margin-left:4px}
+.rank-gold{background:#FFF9E6;border-left:4px solid #F59E0B}
+.rank-silver{background:#F5F5F5;border-left:4px solid #9CA3AF}
+.rank-bronze{background:#FFF3EE;border-left:4px solid #CD7C54}
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:5px}
+.rank-num{font-size:20px;font-weight:800;min-width:36px;text-align:center}
+.rank-cls{font-size:18px;font-weight:700}
+.rank-pts{font-size:14px;font-weight:600;color:#1D9E75;margin-left:auto}
+.rank-detail{font-size:11px;color:#888}
+.pts-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}
+.pts-table th{background:#444;color:#fff;padding:5px;text-align:center;font-size:11px}
+.pts-table td{padding:5px;border-bottom:1px solid #eee;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  🎯 ドッヂボール審判シフト
+  <span style="font-size:11px;font-weight:400"><span class="sync-dot" id="dot"></span><span id="sstat">接続中...</span></span>
+</header>
+<div class="tabs">
+  <button class="tab on" onclick="showTab('group',this)">グループ戦</button>
+  <button class="tab" onclick="showTab('rank',this)">順位表</button>
+  <button class="tab" onclick="showTab('tour',this)">トーナメント</button>
+  <button class="tab" onclick="showTab('shift',this)">審判シフト</button>
+  <button class="tab" onclick="showTab('total',this)">総合順位</button>
+</div>
+<div id="pg-group" class="page on"></div>
+<div id="pg-rank"  class="page"></div>
+<div id="pg-tour"  class="page"></div>
+<div id="pg-shift" class="page"></div>
+<div id="pg-total" class="page"></div>
+
+<script>
+firebase.initializeApp({databaseURL:'https://taizitu-sift-default-rtdb.firebaseio.com'});
+var db=firebase.database();
+function setStat(s,m){
+  document.getElementById('dot').className='sync-dot'+(s?' '+s:'');
+  document.getElementById('sstat').textContent=m;
+}
+
+// 体実メンバー（5年優先ソート済み）
+var STAFF_5 = [
+  {cls:'5C',name:'鈴木尋',   grade:5},
+  {cls:'5C',name:'石井航太', grade:5},
+  {cls:'5C',name:'岡村俊',   grade:5},
+  {cls:'5A',name:'松田昂樹', grade:5}
+];
+var STAFF_4 = [
+  {cls:'4D',name:'小泉亮輔', grade:4},
+  {cls:'4C',name:'趙家弘',   grade:4},
+  {cls:'4G',name:'中川啓太郎',grade:4},
+  {cls:'4B',name:'大木稜介', grade:4}
+];
+var ALL_STAFF = STAFF_5.concat(STAFF_4);
+
+// 本部・誘導：5年から固定割り当て
+// 本部=5年の中で最初の人、誘導=5年の中で2番目
+var HONBU   = {cls:'5C', name:'鈴木尋'};
+var YUDO    = {cls:'5C', name:'石井航太'};
+// 審判プール：本部・誘導を除いた残り
+var REF_POOL = ALL_STAFF.filter(function(s){
+  return !(s.name===HONBU.name) && !(s.name===YUDO.name);
+});
+// 審判プールでも5年優先ソート
+var REF_POOL_5 = REF_POOL.filter(function(s){return s.grade===5;});
+var REF_POOL_4 = REF_POOL.filter(function(s){return s.grade===4;});
+
+var GROUPS={
+  a:{name:'aグループ',cls:'grp-a',teams:['4A','5C','6B','6D'],
+     matches:[{id:'a1',h:'4A',a:'5C'},{id:'a2',h:'6B',a:'6D'},{id:'a3',h:'4A',a:'6B'},
+              {id:'a4',h:'5C',a:'6D'},{id:'a5',h:'4A',a:'6D'},{id:'a6',h:'5C',a:'6B'}]},
+  b:{name:'bグループ',cls:'grp-b',teams:['4G','5E','5F','6C'],
+     matches:[{id:'b1',h:'4G',a:'5E'},{id:'b2',h:'5F',a:'6C'},{id:'b3',h:'4G',a:'5F'},
+              {id:'b4',h:'5E',a:'6C'},{id:'b5',h:'4G',a:'6C'},{id:'b6',h:'5E',a:'5F'}]},
+  c:{name:'cグループ',cls:'grp-c',teams:['4C','4E','5A','5D'],
+     matches:[{id:'c1',h:'4C',a:'4E'},{id:'c2',h:'5A',a:'5D'},{id:'c3',h:'4C',a:'5A'},
+              {id:'c4',h:'4E',a:'5D'},{id:'c5',h:'4C',a:'5D'},{id:'c6',h:'4E',a:'5A'}]},
+  d:{name:'dグループ',cls:'grp-d',teams:['4B','4F','6E','6G'],
+     matches:[{id:'d1',h:'4B',a:'4F'},{id:'d2',h:'6E',a:'6G'},{id:'d3',h:'4B',a:'6E'},
+              {id:'d4',h:'4F',a:'6G'},{id:'d5',h:'4B',a:'6G'},{id:'d6',h:'4F',a:'6E'}]},
+  e:{name:'eグループ',cls:'grp-e',teams:['4D','5B','5G','6A','6F'],
+     matches:[{id:'e1',h:'4D',a:'5B'},{id:'e2',h:'5G',a:'6A'},{id:'e3',h:'4D',a:'6F'},
+              {id:'e4',h:'5B',a:'5G'},{id:'e5',h:'6A',a:'6F'},{id:'e6',h:'4D',a:'5G'},
+              {id:'e7',h:'5B',a:'6A'},{id:'e8',h:'5G',a:'6F'},{id:'e9',h:'4D',a:'6A'},
+              {id:'e10',h:'5B',a:'6F'}]}
+};
+
+var SCHED=[
+  {slot:1,time:'11:30~11:36',A:'Z1',B:'Z2'},
+  {slot:2,time:'11:38~11:44',A:'Y1',B:'X1'},
+  {slot:3,time:'11:46~11:52',A:'W1',B:'Z3'},
+  {slot:4,time:'11:54~12:00',A:'Z4',B:'Y2'},
+  {slot:5,time:'12:02~12:08',A:'Y3',B:'X2'},
+  {slot:6,time:'12:10~12:16',A:'X3',B:'W2'},
+  {slot:7,time:'12:18~12:24',A:'W3',B:'Z5'},
+  {slot:8,time:'12:26~12:32',A:'Y4',B:'X4'},
+  {slot:9,time:'12:34~12:41',A:'W4',B:null}
+];
+var TM_SRC={
+  W1:[['b',1],['c',1]],W2:[['a',1],null],W3:[['d',1],['e',1]],W4:[null,null],
+  X1:[['b',2],['c',2]],X2:[['a',2],null],X3:[['d',2],['e',2]],X4:[null,null],
+  Y1:[['b',3],['c',3]],Y2:[['a',3],null],Y3:[['d',3],['e',3]],Y4:[null,null],
+  Z1:[['a',4],['b',4]],Z2:[['c',4],['d',4]],Z3:[['e',4],null],Z4:[['e',5],null],Z5:[null,null]
+};
+var TM_WREF={
+  W2:[null,'W1'],W4:['W2','W3'],
+  X2:[null,'X1'],X4:['X2','X3'],
+  Y2:[null,'Y1'],Y4:['Y2','Y3'],
+  Z3:[null,'Z1'],Z4:[null,'Z2'],Z5:['Z3','Z4']
+};
+var BLK_PTS={
+  W:{1:250,2:200,other:150},X:{1:150,2:120,other:100},
+  Y:{1:100,2:80,other:75},Z:{1:75,2:50,other:30}
+};
+var BLK_FINALS={
+  W:{final:'W4',semi:['W2','W3'],first:['W1']},
+  X:{final:'X4',semi:['X2','X3'],first:['X1']},
+  Y:{final:'Y4',semi:['Y2','Y3'],first:['Y1']},
+  Z:{final:'Z5',semi:['Z3','Z4'],first:['Z1','Z2']}
+};
+
+var scores={},winners={},rankings={};
+
+setStat('wait','接続中...');
+db.ref('dodgeball').on('value',function(snap){
+  if(window._lc)return;
+  var d=snap.val()||{};
+  scores=d.scores||{};winners=d.winners||{};
+  setStat('ok','同期中');
+  calcRankings();renderAll();
+},function(){setStat('','エラー');});
+
+function sync(){
+  setStat('wait','保存中...');
+  db.ref('dodgeball').set({scores:scores,winners:winners},function(err){
+    setStat(err?'':'ok',err?'エラー':'同期中');
+    window._lc=false;
+  });
+}
+
+function calcRankings(){
+  rankings={};
+  for(var g in GROUPS){
+    var gd=GROUPS[g],st={};
+    gd.teams.forEach(function(t){st[t]={pts:0,gd:0,gf:0};});
+    gd.matches.forEach(function(m){
+      var s=scores[m.id];
+      if(!s||s.h==null||s.a==null)return;
+      var h=+s.h,a=+s.a;
+      st[m.h].gf+=h;st[m.a].gf+=a;
+      st[m.h].gd+=h-a;st[m.a].gd+=a-h;
+      if(h>a)st[m.h].pts+=3;else if(h<a)st[m.a].pts+=3;else{st[m.h].pts++;st[m.a].pts++;}
+    });
+    rankings[g]=gd.teams.slice().sort(function(a,b){
+      return st[b].pts-st[a].pts||st[b].gd-st[a].gd||st[b].gf-st[a].gf;
+    });
+  }
+}
+
+function resolveTeam(mid){
+  var srcs=TM_SRC[mid]||[],wrefs=TM_WREF[mid]||[],teams=[];
+  for(var i=0;i<2;i++){
+    var src=srcs[i],wref=wrefs[i];
+    if(src&&src[0]){var r=rankings[src[0]];teams.push(r&&r[src[1]-1]||'');}
+    else if(wref&&winners[wref])teams.push(winners[wref]);
+    else teams.push('');
+  }
+  return teams;
+}
+
+function calcTotalRanking(){
+  var allCls={};
+  for(var g in GROUPS){
+    GROUPS[g].teams.forEach(function(t){allCls[t]={cls:t,pts:0,blkRank:0,details:[]};});
+  }
+  for(var blk in BLK_FINALS){
+    var bf=BLK_FINALS[blk],bpts=BLK_PTS[blk];
+    var finWin=winners[bf.final],finLose=getLoser(bf.final);
+    if(finWin&&allCls[finWin]){allCls[finWin].pts+=bpts[1];allCls[finWin].blkRank=1;allCls[finWin].details.push(blk+'1位('+bpts[1]+'点)');}
+    if(finLose&&allCls[finLose]){allCls[finLose].pts+=bpts[2];allCls[finLose].blkRank=2;allCls[finLose].details.push(blk+'2位('+bpts[2]+'点)');}
+    bf.semi.forEach(function(mid){
+      var lose=getLoser(mid);
+      if(lose&&allCls[lose]&&!allCls[lose].blkRank){allCls[lose].pts+=bpts.other;allCls[lose].blkRank=3;allCls[lose].details.push(blk+'3-4位('+bpts.other+'点)');}
+    });
+    bf.first.forEach(function(mid){
+      var lose=getLoser(mid);
+      if(lose&&allCls[lose]&&!allCls[lose].blkRank){allCls[lose].pts+=bpts.other;allCls[lose].blkRank=5;allCls[lose].details.push(blk+'5位('+bpts.other+'点)');}
+    });
+  }
+  return Object.values(allCls).sort(function(a,b){return b.pts-a.pts;});
+}
+
+function getLoser(mid){
+  var win=winners[mid];if(!win)return null;
+  var teams=resolveTeam(mid);
+  if(teams[0]===win)return teams[1]||null;
+  if(teams[1]===win)return teams[0]||null;
+  return null;
+}
+
+function renderAll(){renderGroup();renderRank();renderTour();renderShift();renderTotal();}
+
+function renderGroup(){
+  var html='<div class="info">黄色の欄に得点を入力 → 全員のスマホに自動同期されます</div>';
+  for(var g in GROUPS){
+    var gd=GROUPS[g];
+    html+='<div class="card"><div style="margin-bottom:8px"><span class="badge '+gd.cls+'">'+gd.name+'</span></div>';
+    html+='<table><tr><th>No.</th><th>ホーム</th><th>得点</th><th></th><th>得点</th><th>アウェー</th></tr>';
+    gd.matches.forEach(function(m){
+      var sv=scores[m.id]||{};
+      var hv=sv.h!=null?sv.h:'',av=sv.a!=null?sv.a:'';
+      html+='<tr><td><b style="font-size:11px">'+m.id+'</b></td>';
+      html+='<td class="tl"><b>'+m.h+'</b></td>';
+      html+='<td><input type="number" min="0" max="99" value="'+hv+'" oninput="setScore(\''+m.id+'\',\'h\',this.value)"></td>';
+      html+='<td style="color:#aaa;font-size:11px">vs</td>';
+      html+='<td><input type="number" min="0" max="99" value="'+av+'" oninput="setScore(\''+m.id+'\',\'a\',this.value)"></td>';
+      html+='<td class="tl"><b>'+m.a+'</b></td></tr>';
+    });
+    html+='</table></div>';
+  }
+  document.getElementById('pg-group').innerHTML=html;
+}
+
+function setScore(id,side,val){
+  window._lc=true;
+  if(!scores[id])scores[id]={h:null,a:null};
+  scores[id][side]=val===''?null:parseInt(val);
+  calcRankings();renderRank();renderTour();renderShift();renderTotal();
+  clearTimeout(window._st);window._st=setTimeout(sync,800);
+}
+
+function renderRank(){
+  var rcs=['r1','r2','r3','r4','r5'];
+  var html='<div class="info">得点入力で自動計算<span class="auto-tag">● 自動</span></div>';
+  for(var g in GROUPS){
+    var gd=GROUPS[g],ranked=rankings[g]||[];
+    html+='<div class="card"><div style="margin-bottom:8px"><span class="badge '+gd.cls+'">'+gd.name+'</span></div>';
+    html+='<table><tr><th>順位</th><th>クラス</th></tr>';
+    gd.teams.forEach(function(t){
+      var pos=ranked.indexOf(t),rc=pos>=0?rcs[pos]:'';
+      html+='<tr><td><span class="badge '+rc+'">'+(pos>=0?pos+1+'位':'—')+'</span></td>';
+      html+='<td class="tl"><b>'+t+'</b></td></tr>';
+    });
+    html+='</table></div>';
+  }
+  document.getElementById('pg-rank').innerHTML=html;
+}
+
+function renderTour(){
+  var blkCls={W:'blk-W',X:'blk-X',Y:'blk-Y',Z:'blk-Z'};
+  var html='<div class="info">順位確定後に対戦相手が自動表示<span class="auto-tag">● 自動</span></div>';
+  SCHED.forEach(function(sch){
+    var mids=sch.B?[sch.A,sch.B]:[sch.A];
+    html+='<div class="card"><div style="font-size:12px;color:#888;margin-bottom:6px">試合'+sch.slot+'　'+sch.time+'</div>';
+    mids.forEach(function(mid,fi){
+      var teams=resolveTeam(mid),t1=teams[0]||'—',t2=teams[1]||'—',blk=mid[0];
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+      html+='<span class="badge '+blkCls[blk]+'">'+mid+'</span>';
+      html+='<span style="font-size:11px;color:#888">'+(fi===0?'A面':'B面')+'</span>';
+      html+='<span style="font-weight:700;font-size:13px">'+t1+' vs '+t2+'</span></div>';
+      var winVal=winners[mid]||'';
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">';
+      html+='<span style="font-size:11px;color:#666">勝者:</span>';
+      html+='<input class="winner-input" placeholder="クラス名" value="'+winVal+'" oninput="setWinner(\''+mid+'\',this.value)">';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('pg-tour').innerHTML=html;
+}
+
+function setWinner(mid,val){
+  window._lc=true;winners[mid]=val.trim();
+  renderTour();renderShift();renderTotal();
+  clearTimeout(window._st);window._st=setTimeout(sync,800);
+}
+
+// 審判シフト
+// 役割: 審判(5年優先)・副審・本部(固定)・誘導(固定)
+// A面審判・A面副審・B面審判・B面副審は全員別人
+function renderShift(){
+  var refCnt={},subCnt={};
+  ALL_STAFF.forEach(function(s){refCnt[s.name]=0;subCnt[s.name]=0;});
+
+  var blkCls={W:'blk-W',X:'blk-X',Y:'blk-Y',Z:'blk-Z'};
+  var html='<div class="info">';
+  html+='本部: '+HONBU.cls+' '+HONBU.name+'（固定）　誘導: '+YUDO.cls+' '+YUDO.name+'（固定）<br>';
+  html+='審判は5年優先・出場クラス除外・同時間帯別人で自動割り当て<span class="auto-tag">● 自動</span></div>';
+
+  SCHED.forEach(function(sch){
+    var mids=sch.B?[sch.A,sch.B]:[sch.A];
+    var playingSet={};
+    mids.forEach(function(mid){resolveTeam(mid).forEach(function(c){if(c)playingSet[c]=1;});});
+
+    // 使えるプール（本部・誘導除外、出場クラス除外）
+    var avail5=STAFF_5.filter(function(s){
+      return s.name!==HONBU.name && s.name!==YUDO.name && !playingSet[s.cls];
+    });
+    var avail4=STAFF_4.filter(function(s){return !playingSet[s.cls];});
+    var availAll=avail5.concat(avail4);
+
+    var usedNames={};
+    var matchResults=[];
+
+    // 5年優先でpick
+    function pick5first(cnt){
+      // 5年で使えるもの優先
+      var cands5=avail5.filter(function(s){return !usedNames[s.name];});
+      cands5.sort(function(a,b){return cnt[a.name]-cnt[b.name];});
+      var cands4=avail4.filter(function(s){return !usedNames[s.name];});
+      cands4.sort(function(a,b){return cnt[a.name]-cnt[b.name];});
+      var cands=cands5.length?cands5:cands4;
+      var chosen=cands[0]||null;
+      if(chosen){cnt[chosen.name]++;usedNames[chosen.name]=true;}
+      return chosen;
+    }
+    function pickAny(cnt){
+      var cands=availAll.filter(function(s){return !usedNames[s.name];});
+      cands.sort(function(a,b){return cnt[a.name]-cnt[b.name];});
+      var chosen=cands[0]||null;
+      if(chosen){cnt[chosen.name]++;usedNames[chosen.name]=true;}
+      return chosen;
+    }
+
+    mids.forEach(function(mid){
+      var teams=resolveTeam(mid),t1=teams[0]||'未確定',t2=teams[1]||'未確定';
+      var ref=pick5first(refCnt);  // 審判：5年優先
+      var sub=pickAny(subCnt);     // 副審：残り均等
+      matchResults.push({mid:mid,t1:t1,t2:t2,ref:ref,sub:sub});
+    });
+
+    html+='<div class="shift-row">';
+    html+='<div style="font-size:12px;color:#888;margin-bottom:6px">試合'+sch.slot+'　'+sch.time+'</div>';
+    matchResults.forEach(function(mr,fi){
+      var blk=mr.mid[0];
+      html+='<div style="margin-bottom:8px">';
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+      html+='<span class="badge '+blkCls[blk]+'" style="font-size:11px">'+mr.mid+'</span>';
+      html+='<span style="font-size:11px;color:#888">'+(fi===0?'A面':'B面')+'</span>';
+      html+='<span style="font-weight:700;font-size:13px">'+mr.t1+' vs '+mr.t2+'</span></div>';
+      html+='<div class="roles">';
+      html+='<div class="role-box '+(mr.ref?'ref-box':'ng-box')+'"><div class="role-lbl">審判（5年優先）</div><div class="role-name">'+(mr.ref?mr.ref.cls+' '+mr.ref.name:'不足')+'</div></div>';
+      html+='<div class="role-box '+(mr.sub?'sub-box':'ng-box')+'"><div class="role-lbl">副審</div><div class="role-name">'+(mr.sub?mr.sub.cls+' '+mr.sub.name:'不足')+'</div></div>';
+      html+='</div></div>';
+    });
+    // 本部・誘導
+    html+='<div class="roles" style="margin-top:6px;padding-top:6px;border-top:1px solid #eee">';
+    html+='<div class="role-box fixed-box"><div class="role-lbl">本部（全試合固定）</div><div class="role-name">'+HONBU.cls+' '+HONBU.name+'</div></div>';
+    html+='<div class="role-box fixed-box"><div class="role-lbl">誘導（全試合固定）</div><div class="role-name">'+YUDO.cls+' '+YUDO.name+'</div></div>';
+    html+='</div></div>';
+  });
+
+  document.getElementById('pg-shift').innerHTML=html;
+}
+
+function renderTotal(){
+  var list=calcTotalRanking();
+  var medals=['🥇','🥈','🥉'];
+  var rankCls=['rank-gold','rank-silver','rank-bronze'];
+  var html='<div class="info">トーナメント結果から自動計算<span class="auto-tag">● 自動</span></div>';
+  html+='<div class="card"><div style="font-weight:700;font-size:13px;margin-bottom:8px">得点表</div>';
+  html+='<table class="pts-table"><tr><th>ブロック</th><th>1位</th><th>2位</th><th>3〜5位</th></tr>';
+  html+='<tr><td><span class="badge blk-W">W</span></td><td>250点</td><td>200点</td><td>150点</td></tr>';
+  html+='<tr><td><span class="badge blk-X">X</span></td><td>150点</td><td>120点</td><td>100点</td></tr>';
+  html+='<tr><td><span class="badge blk-Y">Y</span></td><td>100点</td><td>80点</td><td>75点</td></tr>';
+  html+='<tr><td><span class="badge blk-Z">Z</span></td><td>75点</td><td>50点</td><td>30点</td></tr>';
+  html+='</table></div>';
+  html+='<div class="card"><div style="font-weight:700;font-size:13px;margin-bottom:10px">総合順位</div>';
+  var prevPts=-1,dispRank=0,cnt=0;
+  list.forEach(function(item){
+    cnt++;
+    if(item.pts!==prevPts){dispRank=cnt;prevPts=item.pts;}
+    var rc=dispRank<=3?rankCls[dispRank-1]:'';
+    var medal=dispRank<=3?medals[dispRank-1]:'';
+    html+='<div class="rank-row '+(rc||'')+'">';
+    html+='<div class="rank-num">'+(medal||dispRank)+'</div>';
+    html+='<div><div class="rank-cls">'+item.cls+'</div>';
+    html+='<div class="rank-detail">'+(item.details.length?item.details.join(' '):'トーナメント未入力')+'</div></div>';
+    html+='<div class="rank-pts">'+(item.pts>0?item.pts+'点':'—')+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('pg-total').innerHTML=html;
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+calcRankings();renderAll();
+</script>
+</body>
+</html>
