@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>審判シフトシステム カスタマイズマニュアル</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --navy: #0F2744;
+  --blue: #1A56DB;
+  --blue-l: #EBF5FF;
+  --green: #057A55;
+  --green-l: #ECFDF5;
+  --amber: #92400E;
+  --amber-l: #FFFBEB;
+  --red: #9B1C1C;
+  --red-l: #FEF2F2;
+  --gray: #374151;
+  --gray-l: #F9FAFB;
+  --border: #E5E7EB;
+  --code-bg: #1E293B;
+  --code-text: #E2E8F0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #F8FAFC;
+  color: var(--gray);
+  line-height: 1.7;
+}
+
+/* サイドバー + メイン */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 260px;
+  background: var(--navy);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 24px 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 16px;
+}
+.sidebar-logo h1 { color: #fff; font-size: 14px; font-weight: 700; line-height: 1.4; }
+.sidebar-logo p { color: rgba(255,255,255,.5); font-size: 11px; margin-top: 4px; }
+.nav-section { padding: 0 12px; margin-bottom: 8px; }
+.nav-label { color: rgba(255,255,255,.4); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+.nav-item {
+  display: block; color: rgba(255,255,255,.7); text-decoration: none;
+  padding: 7px 12px; border-radius: 6px; font-size: 13px;
+  transition: all .15s;
+}
+.nav-item:hover, .nav-item.active { background: rgba(255,255,255,.1); color: #fff; }
+.nav-num { display: inline-block; width: 20px; height: 20px; background: rgba(255,255,255,.15); border-radius: 4px; text-align: center; line-height: 20px; font-size: 11px; font-weight: 700; margin-right: 6px; }
+
+.main { margin-left: 260px; padding: 40px 48px; max-width: 960px; }
+
+/* ヒーロー */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, #1E3A5F 100%);
+  border-radius: 16px; padding: 40px; margin-bottom: 40px; color: #fff;
+}
+.hero-badge { display: inline-block; background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; letter-spacing: .06em; }
+.hero h2 { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+.hero p { color: rgba(255,255,255,.7); font-size: 14px; max-width: 560px; }
+.hero-steps { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+.hero-step { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 12px 16px; flex: 1; min-width: 140px; }
+.hero-step-num { color: rgba(255,255,255,.5); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.hero-step-text { color: #fff; font-size: 12px; font-weight: 600; }
+
+/* セクション */
+.section { margin-bottom: 56px; scroll-margin-top: 24px; }
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 24px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.section-num {
+  width: 36px; height: 36px; background: var(--blue); color: #fff;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; flex-shrink: 0;
+}
+.section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+.section-sub { font-size: 13px; color: #6B7280; margin-top: 2px; }
+
+/* カード */
+.card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 20px; overflow: hidden;
+}
+.card-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;
+}
+.card-body { padding: 20px; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.tag-blue { background: var(--blue-l); color: var(--blue); }
+.tag-green { background: var(--green-l); color: var(--green); }
+.tag-amber { background: var(--amber-l); color: var(--amber); }
+.tag-red { background: var(--red-l); color: var(--red); }
+
+/* コードブロック */
+.code-wrap { border-radius: 10px; overflow: hidden; margin: 12px 0; font-family: 'JetBrains Mono', monospace; }
+.code-header { background: #0F1929; color: rgba(255,255,255,.5); font-size: 11px; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; }
+.code-header span { color: rgba(255,255,255,.7); font-size: 11px; }
+pre {
+  background: var(--code-bg); color: var(--code-text);
+  padding: 16px; font-size: 12px; line-height: 1.8;
+  overflow-x: auto; margin: 0;
+}
+.hl { background: rgba(255,220,0,.15); border-left: 3px solid #FFDC00; padding-left: 4px; display: block; }
+.cm { color: #64748B; }
+.kw { color: #93C5FD; }
+.str { color: #86EFAC; }
+.num { color: #FCA5A5; }
+
+/* 矢印ガイド */
+.guide { background: var(--amber-l); border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+.guide strong { color: var(--amber); }
+
+/* ステップ一覧 */
+.steps { counter-reset: step; }
+.step { display: flex; gap: 16px; margin-bottom: 20px; }
+.step-num { width: 28px; height: 28px; background: var(--navy); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.step-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.step-content p { font-size: 13px; color: #4B5563; }
+
+/* テーブル */
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.tbl th { background: var(--navy); color: #fff; padding: 10px 14px; text-align: left; font-size: 12px; }
+table.tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+table.tbl tr:last-child td { border-bottom: none; }
+table.tbl tr:hover td { background: var(--gray-l); }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #F1F5F9; padding: 2px 6px; border-radius: 3px; }
+
+/* 注意 */
+.alert { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; display: flex; gap: 10px; }
+.alert-warn { background: var(--amber-l); border-left: 4px solid #D97706; }
+.alert-info { background: var(--blue-l); border-left: 4px solid var(--blue); }
+.alert-ok { background: var(--green-l); border-left: 4px solid var(--green); }
+.alert-icon { flex-shrink: 0; font-size: 16px; }
+
+/* チェックリスト */
+.checklist { list-style: none; }
+.checklist li { padding: 6px 0; font-size: 13px; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid var(--border); }
+.checklist li:last-child { border-bottom: none; }
+.check-icon { color: var(--green); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- サイドバー -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>⚽ 審判シフトシステム<br>カスタマイズマニュアル</h1>
+    <p>大隈杯 高校体実 2026年度版</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">はじめに</div>
+    <a href="#overview" class="nav-item">📖 このマニュアルについて</a>
+    <a href="#tools" class="nav-item">🛠 必要なもの</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">変更箇所ガイド</div>
+    <a href="#s1" class="nav-item"><span class="nav-num">1</span>体実メンバー</a>
+    <a href="#s2" class="nav-item"><span class="nav-num">2</span>グループ分け</a>
+    <a href="#s3" class="nav-item"><span class="nav-num">3</span>トーナメント時間割</a>
+    <a href="#s4" class="nav-item"><span class="nav-num">4</span>トーナメント組み合わせ</a>
+    <a href="#s5" class="nav-item"><span class="nav-num">5</span>役割の種類</a>
+    <a href="#s6" class="nav-item"><span class="nav-num">6</span>Firebase保存先</a>
+    <a href="#s7" class="nav-item"><span class="nav-num">7</span>デザイン・タイトル</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">応用</div>
+    <a href="#newsp" class="nav-item">🆕 新競技を追加する手順</a>
+    <a href="#trouble" class="nav-item">⚠️ トラブルシューティング</a>
+  </div>
+</nav>
+
+<!-- メインコンテンツ -->
+<main class="main">
+
+  <!-- ヒーロー -->
+  <div class="hero" id="overview">
+    <div class="hero-badge">CUSTOMIZE GUIDE</div>
+    <h2>審判シフトシステム<br>カスタマイズマニュアル</h2>
+    <p>このシステムは来年度以降も使い回せるように設計されています。<br>HTMLファイルをメモ帳などのテキストエディタで開いて、決まった7箇所を書き換えるだけで別の競技・別の体実メンバーに対応できます。</p>
+    <div class="hero-steps">
+      <div class="hero-step"><div class="hero-step-num">STEP 1</div><div class="hero-step-text">HTMLファイルをコピー</div></div>
+      <div class="hero-step"><div class="hero-step-num">STEP 2</div><div class="hero-step-text">7箇所を書き換え</div></div>
+      <div class="hero-step"><div class="hero-step-num">STEP 3</div><div class="hero-step-text">GitHubにアップロード</div></div>
+      <div class="hero-step"><div class="hero-step-num">STEP 4</div><div class="hero-step-text">URLをLINEで共有</div></div>
+    </div>
+  </div>
+
+  <!-- 必要なもの -->
+  <div class="section" id="tools">
+    <div class="section-header">
+      <div class="section-num">🛠</div>
+      <div><div class="section-title">必要なもの</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><h4>テキストエディタ</h4><p>メモ帳（Windows）/ テキストエディット（Mac）でOK。VSCodeがあればなお良い。</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><h4>GitHubアカウント</h4><p>ファイルをアップロードしてURLを発行するために使用。無料。</p></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Firebaseアカウント</h4><p>リアルタイム同期に使用。既存の <code>taizitu-sift</code> プロジェクトを使い回せる。</p></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><h4>既存のHTMLファイル（コピー元）</h4><p>soccer_shift.html などをベースにコピーして改造する。</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ①体実メンバー -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div><div class="section-title">体実メンバーの変更</div><div class="section-sub">HTMLファイルの上部にある ALL_STAFF を書き換える</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="tag tag-blue">場所</span> HTMLファイルの &lt;script&gt; 内、上から数行目</div>
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>変更前（サッカーの例）</span></div>
+          <pre><span class="kw">var</span> ALL_STAFF=[
+  {cls:<span class="str">'5C'</span>,name:<span class="str">'大友翔'</span>},
+  {cls:<span class="str">'5E'</span>,name:<span class="str">'横瀬智哉'</span>},
+  {cls:<span class="str">'5D'</span>,name:<span class="str">'角川健太郎'</span>},
+  {cls:<span class="str">'5B'</span>,name:<span class="str">'平田詩'</span>},
+  {cls:<span class="str">'4E'</span>,name:<span class="str">'矢木誠人'</span>},
+  {cls:<span class="str">'4G'</span>,name:<span class="str">'藤代真平'</span>},
+  ...
+];</pre>
+        </div>
+        <div class="guide">
+          <strong>📝 変更ルール</strong><br>
+          ・<code>cls</code> → そのメンバーのクラス（例: <code>'5C'</code> <code>'4G'</code>）<br>
+          ・<code>name</code> → 名前（姓のみでOK）<br>
+          ・メンバーが増減しても <code>{ },</code> の行を追加・削除するだけ<br>
+          ・最後の行だけカンマ不要（<code>}</code> で終わる）
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <div><strong>5年生優先機能を使う場合</strong><br>競技によっては <code>STAFF_5</code>（5年）と <code>STAFF_4</code>（4年）に分けて書く。ドッヂビー・ハンドボールなどがこの形式。その場合は <code>grade:5</code> か <code>grade:4</code> も一緒に書く。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ②グループ分け -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div><div class="section-title">グループ分けの変更</div><div class="section-sub">GROUPS の中のクラス一覧と試合の組み合わせを書き換える</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="tag tag-blue">場所</span> <code>var GROUPS={</code> から始まるブロック</div>
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>構造の説明</span></div>
+          <pre>  a:{
+    name:<span class="str">'aグループ'</span>,   <span class="cm">// ← 表示名（変えてOK）</span>
+    cls:<span class="str">'grp-a'</span>,       <span class="cm">// ← CSSクラス名（色。触らなくていい）</span>
+<span class="hl">    teams:[<span class="str">'4D'</span>,<span class="str">'4E'</span>,<span class="str">'5G'</span>,<span class="str">'6B'</span>],  // ← ★グループのクラス一覧</span>
+<span class="hl">    matches:[                          // ← ★試合の組み合わせ一覧</span>
+<span class="hl">      {id:<span class="str">'a1'</span>, h:<span class="str">'4D'</span>, a:<span class="str">'4E'</span>},    // id=試合ID, h=ホーム, a=アウェー</span>
+<span class="hl">      {id:<span class="str">'a2'</span>, h:<span class="str">'5G'</span>, a:<span class="str">'6B'</span>},</span>
+      ...
+    ]
+  },</pre>
+        </div>
+        <div class="guide">
+          <strong>📝 変更ルール</strong><br>
+          ・<code>teams</code> → そのグループに入るクラスを全部書く<br>
+          ・<code>matches</code> → 総当たりの全試合を書く<br>
+          ・<code>id</code> はグループ内でユニークならOK（a1, a2…など）<br>
+          ・4チームなら6試合、5チームなら10試合が総当たりの数
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-icon">💡</span>
+          <div><strong>5チーム（eグループ）の場合は10試合</strong><br>
+          4チーム×6試合、5チーム×10試合。試合の組み合わせはリーグ表をそのまま入力する。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③時間割 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div><div class="section-title">トーナメント時間割の変更</div><div class="section-sub">SCHED の time を書き換えるだけ</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="tag tag-blue">場所</span> <code>var SCHED=[</code> から始まるブロック</div>
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>構造の説明</span></div>
+          <pre><span class="kw">var</span> SCHED=[
+  {slot:<span class="num">1</span>, <span class="hl">time:<span class="str">'11:30~11:36'</span></span>, A:<span class="str">'Z1'</span>, B:<span class="str">'Z2'</span>},
+  {slot:<span class="num">2</span>, <span class="hl">time:<span class="str">'11:38~11:44'</span></span>, A:<span class="str">'Y1'</span>, B:<span class="str">'X1'</span>},
+  {slot:<span class="num">9</span>, <span class="hl">time:<span class="str">'12:34~12:41'</span></span>, A:<span class="str">'W4'</span>, B:<span class="num">null</span>},  <span class="cm">// B面なし → null</span>
+];</pre>
+        </div>
+        <div class="guide">
+          <strong>📝 変更ルール</strong><br>
+          ・<code>time</code> の文字列を新しい時間に書き換えるだけ<br>
+          ・<code>slot</code> は試合番号（1から順番）<br>
+          ・<code>A</code>/<code>B</code> はA面・B面の試合ID（W1, X1, Z1…）<br>
+          ・B面がない試合（決勝など）は <code>B:null</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④トーナメント組み合わせ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div><div class="section-title">トーナメントの対戦組み合わせ</div><div class="section-sub">TM_SRC と TM_WREF を変更（構成が同じなら不要）</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="tag tag-amber">やや複雑</span> 基本はサッカーと同じ構成なので変更不要なことが多い</div>
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>TM_SRC：各試合の出場チームの出所</span></div>
+          <pre><span class="kw">var</span> TM_SRC={
+  W1:[[<span class="str">'b'</span>,<span class="num">1</span>],[<span class="str">'c'</span>,<span class="num">1</span>]],  <span class="cm">// W1 = bグループ1位 vs cグループ1位</span>
+  W2:[[<span class="str">'a'</span>,<span class="num">1</span>],<span class="num">null</span>],    <span class="cm">// W2 = aグループ1位 vs （前試合勝者）</span>
+  W4:[<span class="num">null</span>,<span class="num">null</span>],       <span class="cm">// W4 = 前試合勝者 vs 前試合勝者</span>
+  Z1:[[<span class="str">'a'</span>,<span class="num">4</span>],[<span class="str">'b'</span>,<span class="num">4</span>]],  <span class="cm">// Z1 = aグループ4位 vs bグループ4位</span>
+};</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-header"><span>TM_WREF：前試合の勝者を参照する試合</span></div>
+          <pre><span class="kw">var</span> TM_WREF={
+  W2:[<span class="num">null</span>,<span class="str">'W1'</span>],   <span class="cm">// W2のB面チーム = W1の勝者</span>
+  W4:[<span class="str">'W2'</span>,<span class="str">'W3'</span>],  <span class="cm">// W4 = W2勝者 vs W3勝者（決勝）</span>
+  Z3:[<span class="num">null</span>,<span class="str">'Z1'</span>],  <span class="cm">// Z3のB面チーム = Z1の勝者</span>
+};</pre>
+        </div>
+        <div class="alert alert-ok">
+          <span class="alert-icon">✅</span>
+          <div><strong>サッカー・バスケ・ドッヂボール・ドッヂビー・ハンドボールはすべて同じ構成</strong><br>トーナメントの構成が変わらない限り、TM_SRC と TM_WREF は変更不要。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤役割の種類 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div><div class="section-title">役割の種類・数の変更</div><div class="section-sub">renderShift() 関数内の pick の数と種類を変える</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="tag tag-blue">場所</span> <code>function renderShift(){</code> の中</div>
+      <div class="card-body">
+        <p style="font-size:13px;margin-bottom:12px">各試合で人を選ぶ関数が <code>pick5first</code>（5年優先）と <code>pickAny</code>（誰でも）の2種類あります。</p>
+        <div class="code-wrap">
+          <div class="code-header"><span>役割の割り当て部分（試合ループ内）</span></div>
+          <pre><span class="cm">// 審判を1人選ぶ（5年優先）</span>
+<span class="hl"><span class="kw">var</span> ref = pick5first(refCount);</span>
+<span class="cm">// ボールボーイを1人選ぶ（誰でもOK）</span>
+<span class="hl"><span class="kw">var</span> bb  = pickAny(bbCount);</span>
+<span class="cm">// 本部を1人選ぶ（誰でもOK）</span>
+<span class="hl"><span class="kw">var</span> hb  = pickAny(hbCount);</span></pre>
+        </div>
+        <div class="guide">
+          <strong>📝 役割を追加したい場合</strong><br>
+          ① カウント変数を追加: <code>var 新役職Count={};</code><br>
+          ② 初期化に追加: <code>ALL_STAFF.forEach(function(s){ 新役職Count[s.name]=0; });</code><br>
+          ③ pick を追加: <code>var 新役職 = pickAny(新役職Count);</code><br>
+          ④ 表示部分にも追加（role-box のHTML）
+        </div>
+        <table class="tbl" style="margin-top:12px">
+          <tr><th>関数</th><th>意味</th><th>使う場面</th></tr>
+          <tr><td><span class="mono">pick5first(cnt)</span></td><td>5年生を優先して選ぶ</td><td>主審・審判など重要な役割</td></tr>
+          <tr><td><span class="mono">pickAny(cnt)</span></td><td>担当回数が少ない人から選ぶ</td><td>副審・BB・本部・誘導など</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥Firebase -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div><div class="section-title">Firebase保存先の変更</div><div class="section-sub">競技ごとにデータが混ざらないように名前を変える</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="tag tag-green">重要</span> 競技が違うのに同じ名前だとデータが上書きされる</div>
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>変更する2箇所（必ず両方変える）</span></div>
+          <pre><span class="cm">// データ読み込み（1箇所目）</span>
+db.ref(<span class="hl"><span class="str">'soccer'</span></span>).on(<span class="str">'value'</span>, function(snap){ ... });
+
+<span class="cm">// データ保存（2箇所目）</span>
+db.ref(<span class="hl"><span class="str">'soccer'</span></span>).set({scores:scores, winners:winners}, ...);</pre>
+        </div>
+        <div class="guide">
+          <strong>📝 競技名の対応表（このシステムで使用中）</strong><br>
+          サッカー → <code>'soccer'</code><br>
+          バスケットボール → <code>'basketball'</code><br>
+          ドッヂボール → <code>'dodgeball'</code><br>
+          ドッヂビー → <code>'dodgebee'</code><br>
+          ハンドボール → <code>'handball'</code><br>
+          <br>
+          新競技を追加するときは <code>'tagoni'</code> など新しい名前を付ける。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦デザイン -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div><div class="section-title">デザイン・タイトルの変更</div><div class="section-sub">色・絵文字・タイトルを競技に合わせて変える</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="code-wrap">
+          <div class="code-header"><span>① ヘッダーの色（CSS内）</span></div>
+          <pre>header{background:<span class="hl"><span class="str">#185FA5</span></span>; ...}   <span class="cm">/* 青→サッカー */</span>
+<span class="cm">/* バスケなら #993C1D（茶）、ドッヂビーなら #534AB7（紫）など */</span></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-header"><span>② タブの色（CSS内）</span></div>
+          <pre>.tab.on{color:<span class="hl"><span class="str">#185FA5</span></span>; border-bottom:2px solid <span class="hl"><span class="str">#185FA5</span></span>; ...}</pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-header"><span>③ タイトル文字（HTML内）</span></div>
+          <pre>&lt;header&gt;
+  <span class="hl"><span class="str">⚽ サッカー審判シフト</span></span>  <span class="cm">&lt;!-- ここを変える --&gt;</span>
+  &lt;span&gt;...&lt;/span&gt;
+&lt;/header&gt;</pre>
+        </div>
+        <div class="guide">
+          <strong>📝 競技別おすすめ色</strong><br>
+          ⚽ サッカー → <code>#185FA5</code>（青）<br>
+          🏀 バスケ → <code>#993C1D</code>（茶）<br>
+          🎯 ドッヂボール → <code>#1D9E75</code>（緑）<br>
+          🥏 ドッヂビー → <code>#534AB7</code>（紫）<br>
+          🤾 ハンドボール → <code>#BA7517</code>（金）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新競技追加手順 -->
+  <div class="section" id="newsp">
+    <div class="section-header">
+      <div class="section-num">🆕</div>
+      <div><div class="section-title">新しい競技を追加する完全手順</div><div class="section-sub">来年度の体実引き継ぎ用</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><h4>既存のHTMLをコピーしてリネーム</h4><p>例: <code>soccer_shift.html</code> をコピーして <code>tagoni_shift.html</code> などに名前を変える</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><h4>テキストエディタで開く</h4><p>メモ帳でもOK。Windowsなら右クリック→「プログラムから開く」→「メモ帳」</p></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><h4>①〜⑦を順番に書き換える</h4><p>上記ガイドの1〜7を確認しながら変更する。Ctrl+F（検索）で変数名を検索すると早い</p></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><h4>ブラウザで動作確認</h4><p>HTMLファイルをダブルクリックしてブラウザで開き、グループ戦の得点入力が動くか確認する（Firebaseは繋がらないが表示は確認できる）</p></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><h4>GitHubにアップロード</h4><p>soccer-siftリポジトリの「+」→「Upload files」からアップロード。Commit changesを押す。</p></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-content"><h4>URLをLINEで共有</h4><p><code>https://nrkyagi1212-coder.github.io/soccer-sift/ファイル名.html</code> でアクセスできる</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- トラブルシューティング -->
+  <div class="section" id="trouble">
+    <div class="section-header">
+      <div class="section-num">⚠️</div>
+      <div><div class="section-title">トラブルシューティング</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <table class="tbl">
+          <tr><th>症状</th><th>原因</th><th>対処法</th></tr>
+          <tr>
+            <td>ページが真っ白になる</td>
+            <td>JavaScriptの構文エラー</td>
+            <td>ブラウザのF12→コンソールでエラーを確認。カンマの付け忘れ・クォートの閉じ忘れが多い</td>
+          </tr>
+          <tr>
+            <td>審判が「不足」になる</td>
+            <td>出場クラスの体実が多くて使える人がいない</td>
+            <td>その時間帯は人数不足。体実の人数を増やすか、出場クラスに関係なく使う人を追加する</td>
+          </tr>
+          <tr>
+            <td>スマホで同期されない</td>
+            <td>FirebaseのルールがReadを許可していない</td>
+            <td>Firebaseコンソール→Realtime Database→ルールで <code>".read": true, ".write": true</code> に設定</td>
+          </tr>
+          <tr>
+            <td>勝者入力しても次の試合に反映されない</td>
+            <td>TM_WREFのインデックスが間違い</td>
+            <td>W2のB面は <code>[null,'W1']</code>（0番目がnull, 1番目がW1）になっているか確認</td>
+          </tr>
+          <tr>
+            <td>順位が正しく計算されない</td>
+            <td>GROUPSのmatchesのidが重複している</td>
+            <td>全試合のIDがユニークか確認（a1, a2… b1, b2…のように重複しないようにする）</td>
+          </tr>
+          <tr>
+            <td>GitHubにアップしてもURLが404エラー</td>
+            <td>GitHub Pagesのデプロイに時間がかかっている</td>
+            <td>2〜3分待ってからアクセスする。Settings→Pagesでデプロイ状況を確認</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--border);padding-top:24px;margin-top:40px;font-size:12px;color:#9CA3AF;text-align:center">
+    大隈杯 高校体実 審判シフトシステム マニュアル　2026年度版<br>
+    作成日: 2026年4月　※来年度も使い回す場合はこのファイルも更新してください
+  </div>
+
+</main>
+</div>
+
+<script>
+// スクロール連動ナビ
+const sections = document.querySelectorAll('.section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 60) cur = s.id; });
+  navItems.forEach(n => {
+    n.classList.toggle('active', n.getAttribute('href') === '#'+cur);
+  });
+});
+</script>
+</body>
+</html>

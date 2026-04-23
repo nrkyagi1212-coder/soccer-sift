@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Pages 使い方マニュアル</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --navy: #0D1117;
+  --blue: #1A56DB;
+  --blue-l: #EBF5FF;
+  --green: #057A55;
+  --green-l: #ECFDF5;
+  --amber: #92400E;
+  --amber-l: #FFFBEB;
+  --red: #9B1C1C;
+  --red-l: #FEF2F2;
+  --gray: #374151;
+  --gray-l: #F9FAFB;
+  --border: #E5E7EB;
+  --github: #24292F;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: #F6F8FA; color: var(--gray); line-height: 1.7; }
+
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 260px; background: var(--github); position: fixed;
+  top: 0; left: 0; height: 100vh; overflow-y: auto; padding: 24px 0; z-index: 100;
+}
+.sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 16px; }
+.sidebar-logo h1 { color: #fff; font-size: 14px; font-weight: 700; line-height: 1.5; }
+.sidebar-logo p { color: rgba(255,255,255,.4); font-size: 11px; margin-top: 4px; }
+.nav-section { padding: 0 12px; margin-bottom: 8px; }
+.nav-label { color: rgba(255,255,255,.35); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+.nav-item { display: block; color: rgba(255,255,255,.65); text-decoration: none; padding: 7px 12px; border-radius: 6px; font-size: 13px; transition: all .15s; }
+.nav-item:hover, .nav-item.active { background: rgba(255,255,255,.1); color: #fff; }
+
+.main { margin-left: 260px; padding: 40px 48px; max-width: 940px; }
+
+.hero {
+  background: linear-gradient(135deg, #0D1117 0%, #161B22 100%);
+  border: 1px solid #30363D; border-radius: 16px; padding: 40px; margin-bottom: 40px; color: #fff;
+}
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.8); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+.hero h2 { font-size: 26px; font-weight: 900; margin-bottom: 10px; }
+.hero p { color: rgba(255,255,255,.6); font-size: 14px; max-width: 540px; line-height: 1.7; }
+.hero-flow { display: flex; align-items: center; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+.flow-step { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #fff; font-weight: 600; }
+.flow-arrow { color: rgba(255,255,255,.3); font-size: 16px; }
+
+.section { margin-bottom: 52px; scroll-margin-top: 24px; }
+.section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+.section-num { width: 36px; height: 36px; background: var(--github); color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; flex-shrink: 0; }
+.section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+.section-sub { font-size: 13px; color: #6B7280; margin-top: 2px; }
+
+.card { background: #fff; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+.card-header { padding: 13px 20px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; background: #FAFAFA; }
+.card-body { padding: 20px; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.tag-blue { background: var(--blue-l); color: var(--blue); }
+.tag-green { background: var(--green-l); color: var(--green); }
+.tag-amber { background: var(--amber-l); color: var(--amber); }
+.tag-gray { background: #F3F4F6; color: #374151; }
+
+/* スクリーンショット風モックアップ */
+.mockup { background: #fff; border: 2px solid #D0D7DE; border-radius: 10px; overflow: hidden; margin: 14px 0; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.mockup-bar { background: #F6F8FA; border-bottom: 1px solid #D0D7DE; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+.mockup-dots { display: flex; gap: 5px; }
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mockup-dot.r { background: #FF5F56; }
+.mockup-dot.y { background: #FFBD2E; }
+.mockup-dot.g { background: #27C93F; }
+.mockup-url { background: #fff; border: 1px solid #D0D7DE; border-radius: 4px; padding: 3px 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #57606A; flex: 1; }
+.mockup-body { padding: 16px 20px; font-size: 12px; }
+
+/* ステップ */
+.steps { }
+.step { display: flex; gap: 16px; margin-bottom: 24px; position: relative; }
+.step:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 30px; bottom: -10px; width: 2px; background: var(--border); }
+.step-num { width: 28px; height: 28px; background: var(--github); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; z-index: 1; }
+.step-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+.step-content p { font-size: 13px; color: #4B5563; margin-bottom: 8px; }
+
+/* UIパーツ模倣 */
+.ui-btn { display: inline-block; padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; margin: 2px; cursor: default; }
+.ui-btn-green { background: #2DA44E; color: #fff; }
+.ui-btn-gray { background: #F6F8FA; color: #24292F; border: 1px solid #D0D7DE; }
+.ui-btn-blue { background: #0969DA; color: #fff; }
+.ui-input { display: inline-block; border: 1px solid #D0D7DE; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-family: 'JetBrains Mono', monospace; background: #fff; color: #24292F; }
+.ui-tab { display: inline-block; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #24292F; border-bottom: 2px solid #FD8C73; cursor: default; }
+.ui-menu-item { display: block; padding: 8px 16px; font-size: 13px; color: #24292F; background: #fff; border: 1px solid #D0D7DE; border-radius: 6px; margin: 3px 0; cursor: default; }
+.ui-menu-item:hover { background: #F6F8FA; }
+.ui-file { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #D8DEE4; font-size: 13px; }
+.ui-file-icon { color: #57606A; font-size: 14px; }
+.ui-file-name { color: #0969DA; font-weight: 500; }
+.ui-file-new { color: #2DA44E; font-size: 11px; font-weight: 700; margin-left: auto; background: #DAFBE1; padding: 2px 6px; border-radius: 3px; }
+
+.alert { border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px; display: flex; gap: 10px; line-height: 1.6; }
+.alert-warn { background: var(--amber-l); border-left: 4px solid #D97706; }
+.alert-info { background: var(--blue-l); border-left: 4px solid var(--blue); }
+.alert-ok { background: var(--green-l); border-left: 4px solid var(--green); }
+.alert-icon { flex-shrink: 0; font-size: 16px; }
+
+.guide { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; line-height: 1.7; }
+.guide strong { color: var(--amber); }
+
+pre { background: #161B22; color: #E6EDF3; padding: 14px 16px; border-radius: 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace; overflow-x: auto; margin: 10px 0; line-height: 1.8; }
+.hl-url { color: #79C0FF; }
+.hl-file { color: #7EE787; }
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+table.tbl th { background: var(--github); color: #fff; padding: 10px 14px; text-align: left; font-size: 12px; }
+table.tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+table.tbl tr:last-child td { border-bottom: none; }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #F1F5F9; padding: 2px 6px; border-radius: 3px; }
+
+@media(max-width:768px){ .sidebar{display:none} .main{margin-left:0;padding:20px} }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>🐙 GitHub Pages<br>使い方マニュアル</h1>
+    <p>大隈杯 高校体実 2026年度版</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">基本操作</div>
+    <a href="#what" class="nav-item">📖 GitHubとは</a>
+    <a href="#upload" class="nav-item">📤 ファイルをアップロード</a>
+    <a href="#update" class="nav-item">🔄 ファイルを更新する</a>
+    <a href="#url" class="nav-item">🔗 URLの確認方法</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">応用</div>
+    <a href="#newfile" class="nav-item">🆕 新しいファイルを追加</a>
+    <a href="#delete" class="nav-item">🗑 ファイルを削除</a>
+    <a href="#trouble" class="nav-item">⚠️ よくあるトラブル</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">引き継ぎ</div>
+    <a href="#handover" class="nav-item">👥 来年度への引き継ぎ</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="hero" id="what">
+    <div class="hero-badge">🐙 GitHub Pages ガイド</div>
+    <h2>GitHubを使って<br>審判シフトを公開する</h2>
+    <p>GitHubはHTMLファイルを無料でWeb上に公開できるサービスです。一度アップロードすれば永久に止まらないURLが使えます。LINEで送るだけでスマホから誰でも見られます。</p>
+    <div class="hero-flow">
+      <div class="flow-step">📁 HTMLファイルを用意</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">📤 GitHubにアップロード</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🔗 URLが発行される</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">📱 LINEで共有</div>
+    </div>
+  </div>
+
+  <!-- ファイルをアップロード -->
+  <div class="section" id="upload">
+    <div class="section-header">
+      <div class="section-num">📤</div>
+      <div><div class="section-title">ファイルをアップロードする</div><div class="section-sub">新しいファイルを初めて追加する場合</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>GitHubのリポジトリページを開く</h4>
+              <p>ブラウザで以下のURLにアクセスする</p>
+              <pre><span class="hl-url">https://github.com/nrkyagi1212-coder/soccer-sift</span></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>「+」ボタンをクリック → 「Upload files」を選ぶ</h4>
+              <p>ファイル一覧の上にある「+」ボタンをクリックする</p>
+              <div class="mockup">
+                <div class="mockup-bar">
+                  <div class="mockup-dots"><span class="mockup-dot r"></span><span class="mockup-dot y"></span><span class="mockup-dot g"></span></div>
+                  <div class="mockup-url">github.com/nrkyagi1212-coder/soccer-sift</div>
+                </div>
+                <div class="mockup-body">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <span style="font-size:13px;font-weight:700">soccer-sift</span>
+                    <span style="margin-left:auto;display:flex;gap:6px">
+                      <span class="ui-btn ui-btn-green">Code ▼</span>
+                      <span style="width:28px;height:28px;border:1px solid #D0D7DE;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;background:#F6F8FA">+</span>
+                    </span>
+                  </div>
+                  <div style="background:#fff;border:1px solid #D0D7DE;border-radius:6px;padding:4px 0;box-shadow:0 4px 12px rgba(0,0,0,.1);display:inline-block;min-width:160px">
+                    <div class="ui-menu-item">Create new file</div>
+                    <div class="ui-menu-item" style="background:#F6F8FA;font-weight:700;color:#0969DA">📤 Upload files ← ここ</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>ファイルをドラッグ＆ドロップ</h4>
+              <p>パソコンのエクスプローラーからHTMLファイルを画面中央の枠にドラッグする。または「choose your files」をクリックしてファイルを選ぶ。</p>
+              <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>複数ファイルを一度にドラッグしてまとめてアップロードできます。</div>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>「Commit changes」ボタンを押す</h4>
+              <p>ページ下部に緑のボタンが出るのでクリックする。これでアップロード完了。</p>
+              <div style="margin-top:8px">
+                <span class="ui-btn ui-btn-green">Commit changes</span>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <h4>2〜3分待ってからURLにアクセス</h4>
+              <p>GitHubがページを公開するまで少し時間がかかる。</p>
+              <pre><span class="hl-url">https://nrkyagi1212-coder.github.io/soccer-sift/</span><span class="hl-file">アップロードしたファイル名.html</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ファイルを更新 -->
+  <div class="section" id="update">
+    <div class="section-header">
+      <div class="section-num">🔄</div>
+      <div><div class="section-title">ファイルを更新する（上書き）</div><div class="section-sub">修正したHTMLを再アップロードする場合</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <div><strong>注意：GitHubは同じファイル名でアップすると自動で上書きされない</strong><br>同じ名前でアップしても別ファイルとして追加される。確実に更新するには以下の方法を使う。</div>
+        </div>
+
+        <h4 style="font-size:14px;font-weight:700;margin:16px 0 10px">方法A：既存ファイルを編集して上書き（おすすめ）</h4>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>リポジトリのファイル一覧から対象ファイルをクリック</h4>
+              <div class="mockup">
+                <div class="mockup-bar">
+                  <div class="mockup-dots"><span class="mockup-dot r"></span><span class="mockup-dot y"></span><span class="mockup-dot g"></span></div>
+                  <div class="mockup-url">github.com/nrkyagi1212-coder/soccer-sift</div>
+                </div>
+                <div class="mockup-body">
+                  <div class="ui-file"><span class="ui-file-icon">📄</span><span class="ui-file-name">soccer_shift_6.html</span><span style="color:#57606A;font-size:11px;margin-left:auto">1 hour ago</span></div>
+                  <div class="ui-file"><span class="ui-file-icon">📄</span><span class="ui-file-name" style="color:#24292F;font-weight:700;cursor:pointer">handball_shift_2.html ← クリック</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>右上の鉛筆アイコン（✏️）をクリック</h4>
+              <p>ファイルの中身が表示されたら、右上に鉛筆マークのボタンがある。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>全選択（Ctrl+A）→ 削除 → 新しい内容を貼り付け</h4>
+              <p>テキストエリアで Ctrl+A で全選択、Delete で削除、新しいHTMLの内容をCtrl+Vで貼り付ける。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>「Commit changes」を押す</h4>
+              <p>これで同じURLのまま内容が更新される。</p>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="font-size:14px;font-weight:700;margin:20px 0 10px">方法B：新しいファイル名でアップする（簡単）</h4>
+        <p style="font-size:13px;color:#4B5563;margin-bottom:8px">修正したHTMLを <code>soccer_shift_7.html</code> のように番号を上げてアップするだけ。URLが変わるのでLINEで再共有が必要。</p>
+        <div class="guide">
+          <strong>📝 ファイル名の付け方ルール</strong><br>
+          競技名_shift_バージョン番号.html<br>
+          例: <span class="mono">soccer_shift_7.html</span>　<span class="mono">basketball_shift_4.html</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- URLの確認 -->
+  <div class="section" id="url">
+    <div class="section-header">
+      <div class="section-num">🔗</div>
+      <div><div class="section-title">URLの確認方法</div><div class="section-sub">公開URLはファイル名から自動で決まる</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="guide">
+          <strong>📝 URLのパターン</strong><br>
+          <code>https://nrkyagi1212-coder.github.io/soccer-sift/<strong>ファイル名.html</strong></code>
+        </div>
+        <table class="tbl" style="margin-top:12px">
+          <tr><th>GitHubのファイル名</th><th>公開URL</th></tr>
+          <tr><td><span class="mono">soccer_shift_6.html</span></td><td><span class="mono">...soccer-sift/soccer_shift_6.html</span></td></tr>
+          <tr><td><span class="mono">basketball_shift_3.html</span></td><td><span class="mono">...soccer-sift/basketball_shift_3.html</span></td></tr>
+          <tr><td><span class="mono">total_ranking_3.html</span></td><td><span class="mono">...soccer-sift/total_ranking_3.html</span></td></tr>
+        </table>
+        <div class="alert alert-info" style="margin-top:12px">
+          <span class="alert-icon">💡</span>
+          <div><strong>GitHub Pagesのデプロイ状況の確認方法</strong><br>
+          Settings → Pages → 「Your site is live at ...」と表示されていればOK。<br>
+          「github-pages」の横に緑の✅が出るまで少し待つ（1〜3分）。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新しいファイルを追加 -->
+  <div class="section" id="newfile">
+    <div class="section-header">
+      <div class="section-num">🆕</div>
+      <div><div class="section-title">新しいファイルを追加する</div><div class="section-sub">来年度の新競技・新メンバーに対応するとき</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>既存のHTMLをパソコンにダウンロード</h4>
+              <p>GitHubでファイルをクリック → 右上の「⬇️ Download raw file」ボタン</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>テキストエディタで開いて内容を変更</h4>
+              <p>「審判シフトシステム カスタマイズマニュアル」を参照しながら体実メンバー・グループ・時間割を書き換える</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>新しいファイル名で保存</h4>
+              <p>例: <span class="mono">soccer_shift_2027.html</span> のようにわかりやすい名前をつける</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>GitHubにアップロード（上記「アップロード手順」参照）</h4>
+              <p>2〜3分後にURLにアクセスして動作確認する</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ファイルを削除 -->
+  <div class="section" id="delete">
+    <div class="section-header">
+      <div class="section-num">🗑</div>
+      <div><div class="section-title">古いファイルを削除する</div><div class="section-sub">不要なファイルが増えてきたら整理する</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>削除したいファイルをクリック</h4>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>右上の「…」ボタン → 「Delete file」をクリック</h4>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>「Commit changes」を押す</h4>
+              <p>URLにアクセスすると404エラーになれば削除成功</p>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <div><strong>削除したURLをLINEで共有しているなら注意</strong><br>そのURLを使っている人がいると404エラーになる。削除前に全員に新URLを周知すること。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- トラブル -->
+  <div class="section" id="trouble">
+    <div class="section-header">
+      <div class="section-num">⚠️</div>
+      <div><div class="section-title">よくあるトラブル</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <table class="tbl">
+          <tr><th>症状</th><th>原因</th><th>対処法</th></tr>
+          <tr>
+            <td>URLにアクセスすると404エラー</td>
+            <td>①ファイル名のスペルミス<br>②デプロイがまだ終わっていない</td>
+            <td>GitHubのファイル一覧でファイル名を確認。2〜3分待ってから再アクセス</td>
+          </tr>
+          <tr>
+            <td>アップロードしたのに古い内容が表示される</td>
+            <td>ブラウザのキャッシュ</td>
+            <td>Ctrl+Shift+R（強制リロード）を押す</td>
+          </tr>
+          <tr>
+            <td>「このサイトは停止されました」と表示される</td>
+            <td>Netlifyを使っていた頃の名残。GitHubに移行済みなら関係ない</td>
+            <td>GitHubのURLを使う</td>
+          </tr>
+          <tr>
+            <td>Settings → Pagesが見つからない</td>
+            <td>リポジトリの設定画面のメニューの場所</td>
+            <td>Settings → 左メニューを下にスクロール → 「Code and automation」の中の「Pages」</td>
+          </tr>
+          <tr>
+            <td>ファイルをアップしたら番号が増えてしまう（soccer_shift_5.html など）</td>
+            <td>同名ファイルとして上書きされずに追加される仕様</td>
+            <td>方法A（編集して上書き）を使うか、新URLをLINEで再共有する</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引き継ぎ -->
+  <div class="section" id="handover">
+    <div class="section-header">
+      <div class="section-num">👥</div>
+      <div><div class="section-title">来年度への引き継ぎ</div><div class="section-sub">後輩に渡すときにやること</div></div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <ul style="list-style:none;padding:0">
+          <li style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+            <span style="color:var(--green);font-size:16px">✅</span>
+            <div><strong>GitHubアカウントのIDとパスワードを渡す</strong><br><span style="color:#6B7280">アカウント: nrkyagi1212-coder</span></div>
+          </li>
+          <li style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+            <span style="color:var(--green);font-size:16px">✅</span>
+            <div><strong>FirebaseのアカウントIDとパスワードを渡す</strong><br><span style="color:#6B7280">プロジェクト: taizitu-sift</span></div>
+          </li>
+          <li style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+            <span style="color:var(--green);font-size:16px">✅</span>
+            <div><strong>このマニュアル（HTML）をGitHubに保存しておく</strong><br><span style="color:#6B7280">来年度の体実がいつでも参照できるように</span></div>
+          </li>
+          <li style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+            <span style="color:var(--green);font-size:16px">✅</span>
+            <div><strong>今年のHTMLファイルをコピー元として残しておく</strong><br><span style="color:#6B7280">来年はこれを改造するだけで使える</span></div>
+          </li>
+          <li style="display:flex;gap:10px;padding:10px 0;font-size:13px">
+            <span style="color:var(--green);font-size:16px">✅</span>
+            <div><strong>Firebaseのルールを「テストモード」のままにしておく</strong><br><span style="color:#6B7280">読み書きが誰でもできる状態を維持する（体実祭りのみの用途なので問題なし）</span></div>
+          </li>
+        </ul>
+        <div class="alert alert-ok" style="margin-top:16px">
+          <span class="alert-icon">🎉</span>
+          <div><strong>来年度の体実へ</strong><br>このシステムを引き継いでくれてありがとう。HTMLファイルをコピーして体実メンバーとグループ分けを書き換えるだけで動きます。困ったときはマニュアルを読んでください！</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--border);padding-top:24px;margin-top:40px;font-size:12px;color:#9CA3AF;text-align:center">
+    大隈杯 高校体実 GitHub Pages 使い方マニュアル　2026年度版
+  </div>
+
+</main>
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 60) cur = s.id; });
+  navItems.forEach(n => { n.classList.toggle('active', n.getAttribute('href') === '#'+cur); });
+});
+</script>
+</body>
+</html>
