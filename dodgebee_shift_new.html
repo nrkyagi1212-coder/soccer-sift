@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚽ サッカー審判シフト</title>
+<title>🥏 ドッヂビー審判シフト</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;font-size:14px;background:#f4f5f7;color:#111}
-header{background:#185FA5;color:#fff;padding:12px 16px;font-size:16px;font-weight:700;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+header{background:#534AB7;color:#fff;padding:12px 16px;font-size:16px;font-weight:700;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;margin-right:4px}
 .sync-dot.ok{background:#4ade80}.sync-dot.wait{background:#facc15;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .readonly-banner{background:#F59E0B;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:700;display:none}
 .readonly-banner.on{display:block}
-.tabs{display:flex;background:#fff;border-bottom:2px solid #185FA5;overflow-x:auto;position:sticky;top:48px;z-index:99}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #534AB7;overflow-x:auto;position:sticky;top:48px;z-index:99}
 .tab{flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:10px;font-weight:600;color:#888;border:none;background:none;cursor:pointer;white-space:nowrap}
-.tab.on{color:#185FA5;border-bottom:2px solid #185FA5;margin-bottom:-2px}
+.tab.on{color:#534AB7;border-bottom:2px solid #534AB7;margin-bottom:-2px}
 .page{display:none;padding:12px}.page.on{display:block}
 .card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -25,7 +25,7 @@ th{background:#444;color:#fff;padding:6px 4px;text-align:center;font-size:11px}
 td{padding:6px 4px;border-bottom:1px solid #eee;text-align:center}
 td.tl{text-align:left}
 input[type=number]{width:44px;padding:4px 2px;text-align:center;border:2px solid #FFDD00;border-radius:6px;font-size:15px;font-weight:700;background:#FFFFF0}
-input[type=number]:focus{outline:none;border-color:#185FA5}
+input[type=number]:focus{outline:none;border-color:#534AB7}
 input[type=number]:disabled{background:#f0f0f0;border-color:#ddd;color:#aaa}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
 .r1{background:#E6F1FB;color:#0C447C}.r2{background:#EAF3DE;color:#27500A}
@@ -43,7 +43,7 @@ input[type=number]:disabled{background:#f0f0f0;border-color:#ddd;color:#aaa}
 .ref-box{background:#E6F1FB;color:#0C447C}.bb-box{background:#E1F5EE;color:#085041}
 .hb-box{background:#FAEEDA;color:#633806}.pk-box{background:#FBEAF0;color:#72243E}
 .ng-box{background:#FCEBEB;color:#A32D2D}
-.info{background:#E6F1FB;color:#0C447C;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:8px;line-height:1.6}
+.info{background:#F3F4F6;color:#374151;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:8px;line-height:1.6}
 .winner-input{width:72px;padding:4px 6px;border:2px solid #FFDD00;border-radius:6px;font-size:13px;font-weight:700;text-align:center;background:#FFFFF0}
 .winner-input:disabled{background:#f0f0f0;border-color:#ddd;color:#aaa}
 .auto-tag{font-size:10px;color:#1D9E75;font-weight:600;margin-left:4px}
@@ -53,7 +53,7 @@ input[type=number]:disabled{background:#f0f0f0;border-color:#ddd;color:#aaa}
 .rank-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:5px}
 .rank-num{font-size:20px;font-weight:800;min-width:36px;text-align:center}
 .rank-cls{font-size:18px;font-weight:700}
-.rank-pts{font-size:14px;font-weight:600;color:#185FA5;margin-left:auto}
+.rank-pts{font-size:14px;font-weight:600;color:#534AB7;margin-left:auto}
 .rank-detail{font-size:11px;color:#888}
 .pts-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}
 .pts-table th{background:#444;color:#fff;padding:5px;text-align:center;font-size:11px}
@@ -85,7 +85,7 @@ input[type=number]:disabled{background:#f0f0f0;border-color:#ddd;color:#aaa}
 </head>
 <body>
 <header>
-  ⚽ サッカー審判シフト
+  🥏 ドッヂビー審判シフト
   <span id="reset-area" style="margin-right:6px"></span><span style="font-size:11px;font-weight:400"><span class="sync-dot" id="dot"></span><span id="sstat">接続中...</span></span>
 </header>
 <div class="readonly-banner" id="ro-banner">👁 閲覧専用モード — 得点・勝者の変更はできません</div>
@@ -122,32 +122,30 @@ function setStat(s,m){
   document.getElementById('sstat').textContent=m;
 }
 
-var HONBU={cls:'5C',name:'大友翔'};
-var PK_TAN={cls:'4E',name:'矢木誠人'};
 var ALL_STAFF=[
-  {cls:'5C',name:'大友翔'},{cls:'5E',name:'横瀬智哉'},{cls:'5D',name:'角川健太郎'},
-  {cls:'5B',name:'平田詩'},{cls:'5A',name:'松江日向'},{cls:'4E',name:'矢木誠人'},
-  {cls:'4G',name:'藤代真平'},{cls:'4D',name:'秋野蒼介'},{cls:'4C',name:'小林岳'},
-  {cls:'4D',name:'佐久間貴大'},{cls:'4B',name:'孫家熙'},{cls:'4B',name:'高橋央佑'}
+  {cls:'5E',name:'高橋由宇'},{cls:'5E',name:'大濱瑛人'},{cls:'5B',name:'黄品嘉'},
+  {cls:'5C',name:'竹村公努'},{cls:'5D',name:'野見山櫂'},{cls:'5F',name:'田中温大'},
+  {cls:'4F',name:'佐治直一郎'},{cls:'4F',name:'飯田琉偉'},{cls:'4E',name:'茂木寧人'},
+  {cls:'4D',name:'大森勝乃進'}
 ];
 var GROUPS={
-  a:{name:'aグループ',cls:'grp-a',teams:['4D','4E','5G','6B'],
-     matches:[{id:'a1',h:'4D',a:'4E'},{id:'a2',h:'5G',a:'6B'},{id:'a3',h:'4D',a:'5G'},
-              {id:'a4',h:'4E',a:'6B'},{id:'a5',h:'4D',a:'6B'},{id:'a6',h:'4E',a:'5G'}]},
-  b:{name:'bグループ',cls:'grp-b',teams:['4F','5A','5D','6C'],
-     matches:[{id:'b1',h:'4F',a:'5A'},{id:'b2',h:'5D',a:'6C'},{id:'b3',h:'4F',a:'5D'},
-              {id:'b4',h:'5A',a:'6C'},{id:'b5',h:'4F',a:'6C'},{id:'b6',h:'5A',a:'5D'}]},
-  c:{name:'cグループ',cls:'grp-c',teams:['4B','4G','6A','6F'],
-     matches:[{id:'c1',h:'4B',a:'4G'},{id:'c2',h:'6A',a:'6F'},{id:'c3',h:'4B',a:'6A'},
-              {id:'c4',h:'4G',a:'6F'},{id:'c5',h:'4B',a:'6F'},{id:'c6',h:'4G',a:'6A'}]},
-  d:{name:'dグループ',cls:'grp-d',teams:['4C','5B','5F','6E'],
-     matches:[{id:'d1',h:'4C',a:'5B'},{id:'d2',h:'5F',a:'6E'},{id:'d3',h:'4C',a:'5F'},
-              {id:'d4',h:'5B',a:'6E'},{id:'d5',h:'4C',a:'6E'},{id:'d6',h:'5B',a:'5F'}]},
-  e:{name:'eグループ',cls:'grp-e',teams:['4A','5C','5E','6G','6D'],
-     matches:[{id:'e1',h:'4A',a:'5C'},{id:'e2',h:'5E',a:'6G'},{id:'e3',h:'4A',a:'6D'},
-              {id:'e4',h:'5C',a:'5E'},{id:'e5',h:'6G',a:'6D'},{id:'e6',h:'4A',a:'5E'},
-              {id:'e7',h:'5C',a:'6G'},{id:'e8',h:'5E',a:'6D'},{id:'e9',h:'4A',a:'6G'},
-              {id:'e10',h:'5C',a:'6D'}]}
+  a:{name:'aグループ',cls:'grp-a',teams:['4B','4C','5E','6D'],
+     matches:[{id:'a1',h:'4B',a:'4C'},{id:'a2',h:'5E',a:'6D'},{id:'a3',h:'4B',a:'5E'},
+              {id:'a4',h:'4C',a:'6D'},{id:'a5',h:'4B',a:'6D'},{id:'a6',h:'4C',a:'5E'}]},
+  b:{name:'bグループ',cls:'grp-b',teams:['4E','4G','5F','6A'],
+     matches:[{id:'b1',h:'4E',a:'4G'},{id:'b2',h:'5F',a:'6A'},{id:'b3',h:'4E',a:'5F'},
+              {id:'b4',h:'4G',a:'6A'},{id:'b5',h:'4E',a:'6A'},{id:'b6',h:'4G',a:'5F'}]},
+  c:{name:'cグループ',cls:'grp-c',teams:['4A','5B','5D','6G'],
+     matches:[{id:'c1',h:'4A',a:'5B'},{id:'c2',h:'5D',a:'6G'},{id:'c3',h:'4A',a:'5D'},
+              {id:'c4',h:'5B',a:'6G'},{id:'c5',h:'4A',a:'6G'},{id:'c6',h:'5B',a:'5D'}]},
+  d:{name:'dグループ',cls:'grp-d',teams:['4F','5A','6B','6C'],
+     matches:[{id:'d1',h:'4F',a:'5A'},{id:'d2',h:'6B',a:'6C'},{id:'d3',h:'4F',a:'6B'},
+              {id:'d4',h:'5A',a:'6C'},{id:'d5',h:'4F',a:'6C'},{id:'d6',h:'5A',a:'6B'}]},
+  e:{name:'eグループ',cls:'grp-e',teams:['4D','5C','5G','6E','6F'],
+     matches:[{id:'e1',h:'4D',a:'5C'},{id:'e2',h:'5G',a:'6E'},{id:'e3',h:'4D',a:'6F'},
+              {id:'e4',h:'5C',a:'5G'},{id:'e5',h:'6E',a:'6F'},{id:'e6',h:'4D',a:'5G'},
+              {id:'e7',h:'5C',a:'6E'},{id:'e8',h:'5G',a:'6F'},{id:'e9',h:'4D',a:'6E'},
+              {id:'e10',h:'5C',a:'6F'}]}
 };
 
 // 時間割（グループ戦）- 試合IDと時間の対応
@@ -205,7 +203,7 @@ var BLK_FINALS={
 var scores={},winners={},rankings={};
 
 setStat('wait','接続中...');
-db.ref('soccer').on('value',function(snap){
+db.ref('dodgebee').on('value',function(snap){
   if(window._lc)return;
   var d=snap.val()||{};
   scores=d.scores||{};winners=d.winners||{};
@@ -219,7 +217,7 @@ db.ref('soccer').on('value',function(snap){
 function sync(){
   if(READ_ONLY)return;
   setStat('wait','保存中...');
-  db.ref('soccer').set({scores:scores,winners:winners},function(err){
+  db.ref('dodgebee').set({scores:scores,winners:winners},function(err){
     setStat(err?'':'ok',err?'エラー':'同期中');
     window._lc=false;
   });
@@ -308,9 +306,9 @@ function renderGroup(){
         html+='</div>';
       } else {
         html+='<div class="match-score">';
-        html+='<input type="number" min="0" max="99" style="width:52px" placeholder="—" value="'+(hv!==''?hv:'')+'" onchange="setScore(\''+mid+'\',\'h\',this.value)">';
+        html+='<input type="number" min="0" max="99" value="'+hv+'" onchange="setScore(\''+mid+'\',\'h\',this.value)">';
         html+='<div class="match-vs">vs</div>';
-        html+='<input type="number" min="0" max="99" style="width:52px" placeholder="—" value="'+(av!==''?av:'')+'" onchange="setScore(\''+mid+'\',\'a\',this.value)">';
+        html+='<input type="number" min="0" max="99" value="'+av+'" onchange="setScore(\''+mid+'\',\'a\',this.value)">';
         html+='</div>';
       }
       html+='<div class="match-team">'+m.a+'</div>';
@@ -332,7 +330,7 @@ function setScore(id,side,val){
   if(READ_ONLY)return;
   window._lc=true;
   if(!scores[id])scores[id]={h:null,a:null};
-  scores[id][side]=val===''||val===null?null:parseInt(val);
+  scores[id][side]=val===''?null:parseInt(val);
   calcRankings();renderGroup();renderMatrix();renderRank();renderTour();renderShift();renderTotal();
   clearTimeout(window._st);window._st=setTimeout(sync,800);
 }
@@ -485,17 +483,11 @@ function setWinner(mid,val){
 // ===== 審判シフト =====
 function renderShift(){
   var POOL=ALL_STAFF.slice();
-  // 孫家熙・高橋央佑はボールボーイ優先のため初期カウントをマイナスにする
-  var BB_PRIORITY=['孫家熙','高橋央佑'];
-  var refCnt={},bbCnt={},hbCnt={},pkCnt={};
-  ALL_STAFF.forEach(function(s){
-    refCnt[s.name]=0;
-    bbCnt[s.name]=BB_PRIORITY.indexOf(s.name)>=0?-10:0; // 優先する人はカウントを低く
-    hbCnt[s.name]=0;pkCnt[s.name]=0;
-  });
+  var refCnt={},subCnt={},yudo1Cnt={},yudo2Cnt={},honCnt={};
+  ALL_STAFF.forEach(function(s){refCnt[s.name]=0;subCnt[s.name]=0;yudo1Cnt[s.name]=0;yudo2Cnt[s.name]=0;honCnt[s.name]=0;});
   var blkCls={W:'blk-W',X:'blk-X',Y:'blk-Y',Z:'blk-Z'};
-  var html='<div class="info">出場クラスを除外・同時間帯全員別人で自動割り当て<span class="auto-tag">● 自動</span></div>';
-  html+='<div class="info" style="margin-top:4px">孫家熙・高橋央佑はボールボーイ優先</div>';
+  var html='<div class="info">出場クラスを除外・自動割り当て<span class="auto-tag">● 自動</span></div>';
+  html+='<div class="info" style="margin-top:4px">ドッヂビー: 主審2・副審2・誘導2・本部1（計7人）</div>';
   SCHED.forEach(function(sch){
     var mids=sch.B?[sch.A,sch.B]:[sch.A];
     var playingSet={};
@@ -510,10 +502,10 @@ function renderShift(){
     var matchResults=[];
     mids.forEach(function(mid){
       var teams=resolveTeam(mid),t1=teams[0]||'未確定',t2=teams[1]||'未確定';
-      var ref=pick(refCnt),bb=pick(bbCnt);
-      matchResults.push({mid:mid,t1:t1,t2:t2,ref:ref,bb:bb});
+      var ref=pick(refCnt),sub=pick(subCnt);
+      matchResults.push({mid:mid,t1:t1,t2:t2,ref:ref,sub:sub});
     });
-    var hb=pick(hbCnt),pk=pick(pkCnt);
+    var yudo1=pick(yudo1Cnt),yudo2=pick(yudo2Cnt),hon=pick(honCnt);
     html+='<div class="shift-row">';
     html+='<div style="font-size:12px;color:#888;margin-bottom:6px">試合'+sch.slot+'　'+sch.time+'</div>';
     matchResults.forEach(function(mr,fi){
@@ -524,13 +516,14 @@ function renderShift(){
       html+='<span style="font-size:11px;color:#888">'+(fi===0?'A面':'B面')+'</span>';
       html+='<span style="font-weight:700;font-size:13px">'+mr.t1+' vs '+mr.t2+'</span></div>';
       html+='<div class="roles">';
-      html+='<div class="role-box '+(mr.ref?'ref-box':'ng-box')+'"><div class="role-lbl">審判</div><div class="role-name">'+(mr.ref?mr.ref.cls+' '+mr.ref.name:'不足')+'</div></div>';
-      html+='<div class="role-box '+(mr.bb?'bb-box':'ng-box')+'"><div class="role-lbl">ボールボーイ</div><div class="role-name">'+(mr.bb?mr.bb.cls+' '+mr.bb.name:'不足')+'</div></div>';
+      html+='<div class="role-box '+(mr.ref?'ref-box':'ng-box')+'"><div class="role-lbl">主審</div><div class="role-name">'+(mr.ref?mr.ref.cls+' '+mr.ref.name:'不足')+'</div></div>';
+      html+='<div class="role-box '+(mr.sub?'bb-box':'ng-box')+'"><div class="role-lbl">副審</div><div class="role-name">'+(mr.sub?mr.sub.cls+' '+mr.sub.name:'不足')+'</div></div>';
       html+='</div></div>';
     });
-    html+='<div class="honbu-row">';
-    html+='<div class="role-box hb-box"><div class="role-lbl">本部</div><div class="role-name">'+(hb?hb.cls+' '+hb.name:'不足')+'</div></div>';
-    html+='<div class="role-box pk-box"><div class="role-lbl">PK担当</div><div class="role-name">'+(pk?pk.cls+' '+pk.name:'不足')+'</div></div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid #eee">';
+    html+='<div class="role-box pk-box"><div class="role-lbl">誘導①</div><div class="role-name">'+(yudo1?yudo1.cls+' '+yudo1.name:'不足')+'</div></div>';
+    html+='<div class="role-box pk-box"><div class="role-lbl">誘導②</div><div class="role-name">'+(yudo2?yudo2.cls+' '+yudo2.name:'不足')+'</div></div>';
+    html+='<div class="role-box hb-box"><div class="role-lbl">本部</div><div class="role-name">'+(hon?hon.cls+' '+hon.name:'不足')+'</div></div>';
     html+='</div></div>';
   });
   document.getElementById('pg-shift').innerHTML=html;
